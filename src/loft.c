@@ -8,7 +8,7 @@
  *
  * Started: Saturday 11 April 2015, 06:39:24
  * Version: 0.00
- * Last Modified: Sunday 12 April 2015, 22:15:05
+ * Last Modified: Sunday 12 April 2015, 22:32:48
  *
  *
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
@@ -165,7 +165,8 @@ void setDefaultConfig(void)/*{{{*/
 int main(int argc,char **argv)/*{{{*/
 {
     int ret=0;
-    char *conffile;
+    int junk;
+    char *conffile=NULL;
     /* Define the allowable command line options, collecting them in argtable[] */
     struct arg_file *conf = arg_file0("c","conf-file","/etc/loft.conf","configuration file");
     struct arg_lit *help = arg_lit0("h","help","print this help and exit");
@@ -211,6 +212,47 @@ int main(int argc,char **argv)/*{{{*/
             arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
             return 1;
         }
-
-        /* command line processing completed */
+        if(conf->count > 0){
+            conffile=strdup(conf->filename[0]);
+        }
+    }
+    /* free up memory used for argument processing */
+    arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
+    /* command line processing completed */
+    if((ret=initConfig())==0){
+        if((siga=malloc(sizeof(struct sigaction)))==NULL){
+            CCAE(1,"out of memory");
+        }
+        siga->sa_handler=catchsignal;
+        siga->sa_flags=0;
+        setDefaultConfig();
+        if(conffile){
+            updateConfig("configfile",conffile);
+        }
+        if(junk=atoi(configValue("daemonize"))==1){
+            daemonize();
+        }else{
+            if((junk=sigaction(SIGHUP,siga,NULL))!=0){
+                CCAE(1,"cannot set handler for SIGHUP");
+            }
+            siga->sa_handler=catchsignal;
+            if((junk=sigaction(SIGTERM,siga,NULL))!=0){
+                CCAE(1,"cannot set handler for SIGTERM");
+            }
+            siga->sa_handler=catchsignal;
+            if((junk=sigaction(SIGINT,siga,NULL))!=0){
+                CCAE(1,"cannot set handler for SIGINT");
+            }
+            siga->sa_handler=catchsignal;
+            if((junk=sigaction(SIGUSR1,siga,NULL))!=0){
+                CCAE(1,"cannot set handler for SIGUSR1");
+            }
+        }
+        DBGL("Getting config from %s",configValue("configfile"));
+        getConfigFromFile( configValue("configfile") );
+    }else{
+        CCAE(1,"Cannot initialise configuration.");
+    }
+    DBG("Bye!");
+    return ret;
 }/*}}}*/
