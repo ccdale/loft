@@ -8,7 +8,7 @@
  *
  * Started: Monday  6 April 2015, 09:24:04
  * Version: 0.00
- * Last Modified: Sunday 12 April 2015, 09:32:30
+ * Last Modified: Sunday 12 April 2015, 22:06:15
  */
 
 /*
@@ -62,12 +62,11 @@
 #define MAX_MSG_LEN 4096
 
 #define CCA_DEFAULT_CONFIGFILE "/etc/"PROGNAME".conf"
-/*
- * 2MB
- */
-#define CCA_DEFAULT_BUFFERSIZE "2048000"
+#define CCA_DEFAULT_DAEMONIZE "1"
+#define CCA_DEFAULT_BUFFERSIZE "1024"
 #define CCA_DEFAULT_SLEEPTIME "1"
 #define CCA_DEFAULT_FPOS "0"
+#define CCA_DEFAULT_TIME_FORMAT "%a, %d %b %Y %H:%M:%S %Z"
 #define CCA_DEFAULT_FILEBIN "/usr/bin/file"
 #define CCA_DEFAULT_FILEBINARGS "-ib"
 #define CCA_DEFAULT_GUNZIPBIN "/bin/gunzip"

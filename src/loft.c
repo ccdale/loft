@@ -8,7 +8,7 @@
  *
  * Started: Saturday 11 April 2015, 06:39:24
  * Version: 0.00
- * Last Modified: Sunday 12 April 2015, 09:26:02
+ * Last Modified: Sunday 12 April 2015, 22:15:05
  *
  *
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
@@ -31,6 +31,137 @@
 
 #include "loft.h"
 
+void catchsignal(int sig)/* {{{1 */
+{
+    stopfollowing=1;
+    DBG("in sig handler");
+    // signal(sig,catchsignal);
+} /* }}} */
+void daemonize()/* {{{1 */
+{
+    int i,lfp;
+    char str[MAX_MSG_LEN];
+    int junk;
+
+    if(getppid()==1) return; /* already a daemon */
+    DBG("Forking");
+    i=fork();
+    if (i<0) 
+    {
+        CCAE(1,"fork failed. Exiting");
+    }
+    if (i>0) 
+    {
+        DBG("parent exiting after fork");
+        exit(0);
+    } /* parent exits */
+    /* child (daemon) continues */
+    DBG("fork success. Child process continues.");
+    setsid(); /* obtain a new process group */
+    DBG("closing file descriptors");
+    /* Close out the standard file descriptors */
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
+    DBG("redirecting standard i/o to /dev/null");
+    i=open("/dev/null",O_RDWR); dup(i); dup(i); /* handle standard I/O */
+    DBG("setting umask to 027");
+    umask(027); /* set newly created file permissions */
+    DBGL("cd'ing to %s",CCA_HOME);
+    chdir(CCA_HOME); /* change running directory */
+    DBG("Creating lock file");
+    lfp=open(CCA_LOCK_FILE,O_RDWR|O_CREAT,0640);
+    if (lfp<0) {
+        CCAE(1,"Failed to create lock file, exiting.");
+    } /* can not open */
+    if (lockf(lfp,F_TLOCK,0)<0) {
+        CCAE(1,"Cannot lock, another instance running? qitting");
+    } /* can not lock */
+    DBG("File locked.");
+    /* first instance continues */
+    sprintf(str,"%d",getpid());
+    write(lfp,str,strlen(str)); /* record pid to lockfile */
+    DBG("pid written to lock file");
+    DBG("setting signal handlers");
+    siga->sa_handler=SIG_IGN;
+    if((junk=sigaction(SIGCHLD,siga,NULL))!=0){
+        CCAE(1,"cannot ignore signal SIGCHLD");
+    }
+    siga->sa_handler=SIG_IGN;
+    if((junk=sigaction(SIGTSTP,siga,NULL))!=0){
+        CCAE(1,"cannot ignore signal SIGTSTP");
+    }
+    siga->sa_handler=SIG_IGN;
+    if((junk=sigaction(SIGTTOU,siga,NULL))!=0){
+        CCAE(1,"cannot ignore signal SIGTTOU");
+    }
+    siga->sa_handler=SIG_IGN;
+    if((junk=sigaction(SIGTTIN,siga,NULL))!=0){
+        CCAE(1,"cannot ignore signal SIGTTIN");
+    }
+    siga->sa_handler=catchsignal;
+    if((junk=sigaction(SIGHUP,siga,NULL))!=0){
+        CCAE(1,"cannot set handler for SIGHUP");
+    }
+    siga->sa_handler=catchsignal;
+    if((junk=sigaction(SIGTERM,siga,NULL))!=0){
+        CCAE(1,"cannot set handler for SIGTERM");
+    }
+    siga->sa_handler=catchsignal;
+    if((junk=sigaction(SIGINT,siga,NULL))!=0){
+        CCAE(1,"cannot set handler for SIGINT");
+    }
+    siga->sa_handler=catchsignal;
+    if((junk=sigaction(SIGUSR1,siga,NULL))!=0){
+        CCAE(1,"cannot set handler for SIGUSR1");
+    }
+    DBG("%s daemonized",PROGNAME);
+}/* }}} */
+void setDefaultConfig(void)/*{{{*/
+{
+    char *tk;
+    char *tv;
+
+    tk=strdup("daemonize");
+    tv=strdup(CCA_DEFAULT_DAEMONIZE);
+    updateConfig(tk,tv);
+    tk=strdup("configfile");
+    tv=strdup(CCA_DEFAULT_CONFIGFILE);
+    updateConfig(tk,tv);
+    tk=strdup("buffersize");
+    tv=strdup(CCA_DEFAULT_BUFFERSIZE);
+    updateConfig(tk,tv);
+    tk=strdup("sleeptime");
+    tv=strdup(CCA_DEFAULT_SLEEPTIME);
+    updateConfig(tk,tv);
+    tk=strdup("fpos");
+    tv=strdup(CCA_DEFAULT_FPOS);
+    updateConfig(tk,tv);
+    tk=strdup("timeformat");
+    tv=strdup(CCA_DEFAULT_TIME_FORMAT);
+    updateConfig(tk,tv);
+    tk=strdup("filebin");
+    tv=strdup(CCA_DEFAULT_FILEBIN);
+    updateConfig(tk,tv);
+    tk=strdup("filebinargs");
+    tv=strdup(CCA_DEFAULT_FILEBINARGS);
+    updateConfig(tk,tv);
+    tk=strdup("gunzipbin");
+    tv=strdup(CCA_DEFAULT_GUNZIPBIN);
+    updateConfig(tk,tv);
+    tk=strdup("gunzipbinargs");
+    tv=strdup(CCA_DEFAULT_GUNZIPBINARGS);
+    updateConfig(tk,tv);
+    tk=strdup("unzipbin");
+    tv=strdup(CCA_DEFAULT_UNZIPBIN);
+    updateConfig(tk,tv);
+    tk=strdup("unzipbinargs");
+    tv=strdup(CCA_DEFAULT_UNZIPBINARGS);
+    updateConfig(tk,tv);
+    tk=strdup("rotatedlogfileext");
+    tv=strdup(CCA_DEFAULT_RLFEXT);
+    updateConfig(tk,tv);
+}/*}}}*/
 int main(int argc,char **argv)/*{{{*/
 {
     int ret=0;
