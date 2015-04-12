@@ -8,10 +8,12 @@
  *
  * Started: Monday  6 April 2015, 09:24:04
  * Version: 0.00
- * Last Modified: Sunday 12 April 2015, 09:25:05
+ * Last Modified: Sunday 12 April 2015, 09:32:30
  */
 
+/*
 #define _XOPEN_SOURCE 700
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -21,11 +23,15 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+/*
 #include <regex.h>
+*/
 #include <time.h>
 #include <signal.h>
 #include <fcntl.h>
+/*
 #include <libgen.h>
+*/
 #include <errno.h>
 #include <limits.h>
 

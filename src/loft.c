@@ -8,7 +8,7 @@
  *
  * Started: Saturday 11 April 2015, 06:39:24
  * Version: 0.00
- * Last Modified: Sunday 12 April 2015, 09:18:07
+ * Last Modified: Sunday 12 April 2015, 09:26:02
  *
  *
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
@@ -28,6 +28,8 @@
  * You should have received a copy of the GNU General Public License
  * along with loft.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+#include "loft.h"
 
 int main(int argc,char **argv)/*{{{*/
 {
