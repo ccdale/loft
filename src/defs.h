@@ -8,7 +8,7 @@
  *
  * Started: Monday  6 April 2015, 09:24:04
  * Version: 0.00
- * Last Modified: Monday  6 April 2015, 09:27:59
+ * Last Modified: Sunday 12 April 2015, 09:25:05
  */
 
 #define _XOPEN_SOURCE 700
@@ -33,11 +33,32 @@
 #include <sys/types.h>
 #include <dirent.h>
 
+#define PROGNAME "loft"
+#define PROGVERSION "0.01"
+#define PROGEMAIL "chris.allison@hotmail.com"
+#define PROGCOPYRIGHT "Copyright (C) 2014-2015 Chris Allison"
+#define PROGLICENSE "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law.\n"
+
+/*
+ * uncomment for production build
+ */
+/*
+ * #define CCA_PRODUCTION 1
+ */
+#ifdef CCA_PRODUCTION
+#define PROGCONF "/etc/"PROGNAME".conf"
+#else
+#define PROGCONF "/home/chris/src/c/loft/"PROGNAME".conf"
+#endif
+
 #define CCA_HOME "/"
-#define CCA_LOCK_FILE "/var/run/loft.pid"
+#define CCA_LOCK_FILE "/var/run/"PROGNAME".pid"
 #define MAX_MSG_LEN 4096
 
-#define CCA_DEFAULT_CONFIGFILE "/etc/loft.conf"
+#define CCA_DEFAULT_CONFIGFILE "/etc/"PROGNAME".conf"
+/*
+ * 2MB
+ */
 #define CCA_DEFAULT_BUFFERSIZE "2048000"
 #define CCA_DEFAULT_SLEEPTIME "1"
 #define CCA_DEFAULT_FPOS "0"
