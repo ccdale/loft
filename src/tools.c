@@ -9,7 +9,7 @@
  * Started: Wednesday 21 November 2012, 10:46:01
  * Version: 0.00
  * Revision: $Id: tools.c 55 2013-03-24 21:48:39Z chris.charles.allison@gmail.com $
- * Last Modified: Monday  6 April 2015, 09:23:08
+ * Last Modified: Monday  1 June 2015, 07:16:49
  */
 
 #include "tools.h"
@@ -22,7 +22,7 @@ void *xmalloc(size_t size)/*{{{*/
         return xmem;
     }
     /* exit due to allocation error */
-    CCAE(1,"Failed to allocate %d bytes of memory",size);
+    CCAE(1,"Failed to allocate %d bytes of memory",(int)size);
 }/*}}}*/
 void *xcalloc(size_t nmemb, size_t size)/*{{{*/
 {
@@ -73,7 +73,7 @@ char *escapestr(char *str)/* {{{1 */
 
     length=strlen(str);
     length=length*2; /* double the amount of space should be sufficient */
-    if((top=malloc(length))){
+    if((top=xmalloc(length))){
         titer=top;
         iter=str;
         while(iter != '\0' && current < length){
@@ -85,7 +85,7 @@ char *escapestr(char *str)/* {{{1 */
             iter++;
         }
         titer='\0';
-        if((op=malloc(++current))){
+        if((op=xmalloc(++current))){
             strcpy(op,top);
             free(top);
         }else{
@@ -100,7 +100,7 @@ struct tm *initTm(void)/* {{{1 */
 {
     struct tm *tim;
 
-    tim=(struct tm *) malloc(sizeof(struct tm));
+    tim=(struct tm *) xmalloc(sizeof(struct tm));
     if(tim){
         tim->tm_sec=0;
         tim->tm_min=0;
@@ -132,9 +132,7 @@ char *bname(char *fqfilename)/* {{{1 */
     len=snprintf(tbname,0,"%s",tmp);
     /* + terminating null */
     len++;
-    if((tbname=malloc(len)) == NULL){
-        CCAE(1,"out of memory");
-    }
+    tbname=xmalloc(len);
     len=snprintf(tbname,len,"%s",tmp);
     return tbname;
 }/* }}} */
@@ -148,22 +146,18 @@ long filesize(char *filename)/* {{{1 */
     long fsize=-1;
     struct stat *statbuf;
 
-    statbuf=malloc(sizeof(struct stat));
-    if(statbuf){
-        /* syslog(LOG_DEBUG,"in filesize, malloced statbuf, statting"); */
-        ret=stat(filename,statbuf);
-        if(ret==0){
-            /* syslog(LOG_DEBUG,"stat ok. reading file size"); */
-            fsize=statbuf->st_size;
-            // syslog(LOG_DEBUG,"file size: %ld",fsize);
-        }else{
-            syslog(LOG_ERR,"Cannot read file %s",filename);
-        }
-        /* syslog(LOG_DEBUG,"freeing stat buffer"); */
-        free(statbuf);
+    statbuf=xmalloc(sizeof(struct stat));
+    /* syslog(LOG_DEBUG,"in filesize, malloced statbuf, statting"); */
+    ret=stat(filename,statbuf);
+    if(ret==0){
+        /* syslog(LOG_DEBUG,"stat ok. reading file size"); */
+        fsize=statbuf->st_size;
+        // syslog(LOG_DEBUG,"file size: %ld",fsize);
     }else{
-        syslog(LOG_ERR,"Cannot allocate memory for stat buffer");
+        syslog(LOG_ERR,"Cannot read file %s",filename);
     }
+    /* syslog(LOG_DEBUG,"freeing stat buffer"); */
+    free(statbuf);
     /* syslog(LOG_DEBUG,"returning from filesize: %ld",fsize); */
     return fsize;
 }/* }}} */
@@ -174,15 +168,12 @@ char *newstringpointer(char *str)/* {{{1 */
     char *junk;
     int slen=0;
     slen=strlen(str);
-    if((nsp=malloc(slen+1))){
-        junk=strcpy(nsp,str);
-        if(junk!=nsp){
-            syslog(LOG_ERR,"failure in copying string.");
-            free(nsp);
-            nsp=NULL;
-        }
-    }else{
-        syslog(LOG_ERR,"cannot allocate memory for new string pointer.");
+    nsp=xmalloc(slen+1);
+    junk=strcpy(nsp,str);
+    if(junk!=nsp){
+        syslog(LOG_ERR,"failure in copying string.");
+        free(nsp);
+        nsp=NULL;
     }
     return nsp;
 }/* }}} */
@@ -208,12 +199,9 @@ char *numtostr(long long num)/* {{{1 */
     char *buffer=NULL;
     length=snprintf(buffer,0,"%lld",num);
     length++;
-    buffer=malloc(length);
-    if(buffer){
-        length=snprintf(buffer,length,"%lld",num);
-        return buffer;
-    }
-    return NULL;
+    buffer=xmalloc(length);
+    length=snprintf(buffer,length,"%lld",num);
+    return buffer;
 }/* }}} */
 char *trim(char *str)/*{{{1*/
 {

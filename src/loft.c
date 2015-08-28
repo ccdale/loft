@@ -8,7 +8,7 @@
  *
  * Started: Saturday 11 April 2015, 06:39:24
  * Version: 0.00
- * Last Modified: Sunday 12 April 2015, 22:32:48
+ * Last Modified: Monday  1 June 2015, 07:06:47
  *
  *
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
@@ -33,7 +33,7 @@
 
 void catchsignal(int sig)/* {{{1 */
 {
-    stopfollowing=1;
+    timetodie=1;
     DBG("in sig handler");
     // signal(sig,catchsignal);
 } /* }}} */
@@ -115,7 +115,7 @@ void daemonize()/* {{{1 */
     if((junk=sigaction(SIGUSR1,siga,NULL))!=0){
         CCAE(1,"cannot set handler for SIGUSR1");
     }
-    DBG("%s daemonized",PROGNAME);
+    DBG(PROGNAME" daemonized");
 }/* }}} */
 void setDefaultConfig(void)/*{{{*/
 {
@@ -173,8 +173,8 @@ int main(int argc,char **argv)/*{{{*/
     struct arg_lit *vers = arg_lit0("v","version","print version information and exit");
     struct arg_end *end  = arg_end(20);
     void *argtable[] = {conf,help,vers,end};
-    int exitcode=0;
     int nerrors;
+    /*{{{2 argtable processing */
     /* check the argtable[] entries were correctly allocated */
     if(arg_nullcheck(argtable) == 0){
         /* set default config filename */
@@ -219,10 +219,9 @@ int main(int argc,char **argv)/*{{{*/
     /* free up memory used for argument processing */
     arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
     /* command line processing completed */
+    /*}}}*/
     if((ret=initConfig())==0){
-        if((siga=malloc(sizeof(struct sigaction)))==NULL){
-            CCAE(1,"out of memory");
-        }
+        siga=xmalloc(sizeof(struct sigaction));
         siga->sa_handler=catchsignal;
         siga->sa_flags=0;
         setDefaultConfig();

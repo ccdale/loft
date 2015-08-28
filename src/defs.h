@@ -8,7 +8,7 @@
  *
  * Started: Monday  6 April 2015, 09:24:04
  * Version: 0.00
- * Last Modified: Sunday 12 April 2015, 22:06:15
+ * Last Modified: Monday  1 June 2015, 07:31:15
  */
 
 /*
@@ -29,9 +29,12 @@
 #include <time.h>
 #include <signal.h>
 #include <fcntl.h>
+
 /*
+ * libgen for the posix version of basename (tools.c:129)
+ */
 #include <libgen.h>
-*/
+
 #include <errno.h>
 #include <limits.h>
 
@@ -73,3 +76,4 @@
 #define CCA_DEFAULT_GUNZIPBINARGS "-c"
 #define CCA_DEFAULT_UNZIPBIN "/usr/bin/unzip"
 #define CCA_DEFAULT_UNZIPBINARGS "-p"
+#define CCA_DEFAULT_RLFEXT ".1.gz"

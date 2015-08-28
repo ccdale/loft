@@ -9,16 +9,14 @@
  * Started: Sunday 23 December 2012, 09:47:48
  * Version: 0.00
  * Revision: $Id: configfile.c 37 2013-02-03 02:47:31Z chris.charles.allison@gmail.com $
- * Last Modified: Saturday  2 February 2013, 08:29:39
+ * Last Modified: Monday  1 June 2015, 07:10:28
  */
 
 #include "configfile.h"
 
 int initConfig( void )/* {{{1 */
 {
-    if((configuration=malloc(sizeof(struct ConfigItem)))==NULL){
-        CCA_ERR_EXIT(1,"Unable to allocate memory for the configuration.");
-    }
+    configuration=xmalloc(sizeof(struct ConfigItem));
     configuration->key=NULL;
     configuration->value=NULL;
     configuration->next=NULL;
@@ -49,9 +47,7 @@ void getConfigFromFile(char *filename)/* {{{1 */
     char equals[]="=";
     char hash[]="#";
 
-    if((buffer=malloc(bufsize))==NULL){
-        CCA_ERR_EXIT(5,"Unable to allocate memory for config file buffer.");
-    }
+    buffer=xmalloc(bufsize);
     if((fsize=filesize(filename))==-1){
         CCA_ERR_EXIT(3,"Cannot read config filename provided.");
     }
@@ -115,9 +111,7 @@ struct ConfigItem *addConfig(char *key, char *value)/* {{{1 */
         configuration->key=key;
         configuration->value=value;
     }else{
-        if(( tc = (struct ConfigItem*) malloc( sizeof(struct ConfigItem))) == NULL){
-            CCA_ERR_EXIT(2,"Unable to allocate memory for a new config item.");
-        }
+        tc = (struct ConfigItem*) xmalloc( sizeof(struct ConfigItem));
         tc->key=key;
         tc->value=value;
         /* this will now become the front of the list */

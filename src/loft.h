@@ -8,7 +8,7 @@
  *
  * Started: Sunday 12 April 2015, 09:26:56
  * Version: 0.00
- * Last Modified: Sunday 12 April 2015, 09:30:40
+ * Last Modified: Sunday 12 April 2015, 22:54:07
  *
  * Copyright (c) 2015 Chris Allison chris.allison@hotmail.com
  *
@@ -32,7 +32,6 @@
 #include "defs.h"
 #include "macros.h"
 #include "tools.h"
-#include "configfile.h"
 #include <argtable2.h>
 
 /* globals */
@@ -40,4 +39,9 @@ struct ConfigItem *configuration;
 struct sigaction *siga;
 int timetodie=0;
 
+#include "configfile.h"
+
+void catchsignal(int sig);
+void daemonize();
+void setDefaultConfig(void);
 int main(int argc,char **argv);

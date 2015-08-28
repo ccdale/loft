@@ -9,7 +9,7 @@
  * Started: Monday 24 December 2012, 13:11:56
  * Version: 0.00
  * Revision: $Id: configfile.h 37 2013-02-03 02:47:31Z chris.charles.allison@gmail.com $
- * Last Modified: Sunday 12 April 2015, 22:08:51
+ * Last Modified: Monday  1 June 2015, 07:33:04
  */
 #ifndef CCA_CONFIGFILE_H
 #define CCA_CONFIGFILE_H
@@ -23,6 +23,9 @@ struct ConfigItem{
     char *value;
     struct ConfigItem *next;
 };
+
+/* globals */
+extern struct ConfigItem *configuration;
 
 #endif
 
